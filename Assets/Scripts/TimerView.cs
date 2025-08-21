@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-public class CountViewer : MonoBehaviour
+public class TimerView : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _text;
     [SerializeField] private Timer _timer;

@@ -4,34 +4,45 @@ using UnityEngine;
 
 public class Timer : MonoBehaviour
 {
+    private const int LeftMouseButtonNumber = 0;
+
     [SerializeField, Min(0.1f)] private float _delay = 0.5f;
 
     private int _counter;
     private bool _isEnable = false;
-
-    public int Counter { get { return _counter; } }
+    private Coroutine _coroutine = null;
 
     public event Action CounterChanged;
+
+    public int Counter { get { return _counter; } }
 
     private void Start()
     {
         _counter = 0;
-
-        StartCoroutine(IncreaseCounter(_delay));
+        _coroutine = StartCoroutine(IncreaseCounter(_delay));
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(LeftMouseButtonNumber))
         {
             _isEnable = !_isEnable;
+        }
+
+        if (_isEnable && _coroutine == null)
+        {
+            _coroutine = StartCoroutine(IncreaseCounter(_delay));
+        }
+        else if (!_isEnable && _coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+            _coroutine = null;
         }
     }
 
     private void ChangeCounter()
     {
         _counter++;
-
         CounterChanged?.Invoke();
     }
 
@@ -39,13 +50,9 @@ public class Timer : MonoBehaviour
     {
         var wait = new WaitForSeconds(_delay);
 
-        while (true)
+        while (_isEnable)
         {
-            if (_isEnable)
-            {
-                ChangeCounter();
-            }
-
+            ChangeCounter();
             yield return wait;
         }
     }
